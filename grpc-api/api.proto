@@ -1,0 +1,11 @@
+syntax = "proto3";
+package api;
+
+message Words {
+	int32 count = 1;
+	repeated string word = 2;
+}
+
+service StoredWords {
+	rpc GetWord(Words) returns (Words) {}
+}

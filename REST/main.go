@@ -5,5 +5,6 @@ package main
 func main() {
 	a := RESTApp{}
 	a.Initialise()
-	a.Run(":8080")
+	// REST server will listen on port 8080
+	a.Run(":8000")
 }
