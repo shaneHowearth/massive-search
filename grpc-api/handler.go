@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"log"
 	"strings"
 )
 
@@ -32,13 +31,30 @@ func NewServer() Server {
 func (s *Server) GetWord(ctx context.Context, in *Words) (*Words, error) {
 
 	word := strings.ToLower(in.Word[0])
-	log.Printf("Searched for %s", word)
 	if _, ok := s.WordList[word]; ok {
 		// update the search count
 		s.WordList[word] += int32(1)
 		return &Words{Count: s.WordList[word], Word: []string{word}}, nil
 	}
-	log.Printf("Searched for %s", word)
 	// Word not found
 	return &Words{Count: int32(-1), Word: []string{word}}, nil
+}
+
+// UpdateWords
+func (s *Server) UpdateWords(ctx context.Context, in *Words) (*Words, error) {
+	tmpWords := make(map[string]int)
+	for _, word := range in.Word {
+		word = strings.ToLower(word)
+		tmpWords[word] = 0
+		if _, ok := s.WordList[word]; !ok {
+			s.WordList[word] = 0
+		}
+	}
+	// Delete words not in update set
+	for word, _ := range s.WordList {
+		if _, ok := tmpWords[word]; !ok {
+			delete(s.WordList, word)
+		}
+	}
+	return in, nil
 }

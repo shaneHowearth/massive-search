@@ -8,4 +8,5 @@ message Words {
 
 service StoredWords {
 	rpc GetWord(Words) returns (Words) {}
+	rpc UpdateWords(Words) returns (Words) {}
 }

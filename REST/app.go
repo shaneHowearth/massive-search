@@ -37,6 +37,8 @@ func (a *RESTApp) Run(addr string) {
 // Initialise routes, connect routes to their functions
 func (a *RESTApp) initialiseRoutes() {
 	a.Router.HandleFunc("/search/{word:[a-zA-Z]+}", a.getWord).Methods("GET")
+	a.Router.HandleFunc("/words", a.updateWords).Methods("POST")
+	a.Router.HandleFunc("/words", a.updateWords).Methods("PUT")
 }
 
 // Send a JSON response
@@ -59,7 +61,6 @@ func (a *RESTApp) getWord(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	c := api.NewStoredWordsClient(a.GRPC)
 	response, err := c.GetWord(context.Background(), &api.Words{Word: []string{vars["word"]}})
-	log.Printf("Response %+v", response)
 	if err != nil {
 		// TODO: We don't want the user to see this error message!
 		respondWithError(w, http.StatusInternalServerError, err.Error())
@@ -68,5 +69,21 @@ func (a *RESTApp) getWord(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusNotFound, "Not found")
 	} else {
 		respondWithJSON(w, http.StatusOK, &response)
+	}
+}
+
+func (a *RESTApp) updateWords(w http.ResponseWriter, r *http.Request) {
+	var aw api.Words
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&aw); err != nil {
+		log.Printf("Error decoding for update words: %s", err)
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+	defer r.Body.Close()
+	c := api.NewStoredWordsClient(a.GRPC)
+	_, err := c.UpdateWords(context.Background(), &aw)
+	if err != nil {
+		log.Printf("Error updating words %s", err)
 	}
 }

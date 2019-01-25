@@ -72,6 +72,7 @@ const _ = grpc.SupportPackageIsVersion4
 
 type StoredWordsClient interface {
 	GetWord(ctx context.Context, in *Words, opts ...grpc.CallOption) (*Words, error)
+	UpdateWords(ctx context.Context, in *Words, opts ...grpc.CallOption) (*Words, error)
 }
 
 type storedWordsClient struct {
@@ -91,10 +92,20 @@ func (c *storedWordsClient) GetWord(ctx context.Context, in *Words, opts ...grpc
 	return out, nil
 }
 
+func (c *storedWordsClient) UpdateWords(ctx context.Context, in *Words, opts ...grpc.CallOption) (*Words, error) {
+	out := new(Words)
+	err := grpc.Invoke(ctx, "/api.StoredWords/UpdateWords", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for StoredWords service
 
 type StoredWordsServer interface {
 	GetWord(context.Context, *Words) (*Words, error)
+	UpdateWords(context.Context, *Words) (*Words, error)
 }
 
 func RegisterStoredWordsServer(s *grpc.Server, srv StoredWordsServer) {
@@ -119,6 +130,24 @@ func _StoredWords_GetWord_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StoredWords_UpdateWords_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Words)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StoredWordsServer).UpdateWords(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.StoredWords/UpdateWords",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StoredWordsServer).UpdateWords(ctx, req.(*Words))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _StoredWords_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "api.StoredWords",
 	HandlerType: (*StoredWordsServer)(nil),
@@ -126,6 +155,10 @@ var _StoredWords_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetWord",
 			Handler:    _StoredWords_GetWord_Handler,
+		},
+		{
+			MethodName: "UpdateWords",
+			Handler:    _StoredWords_UpdateWords_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -135,13 +168,14 @@ var _StoredWords_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("api.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 120 bytes of a gzipped FileDescriptorProto
+	// 135 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4c, 0x2c, 0xc8, 0xd4,
 	0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4e, 0x2c, 0xc8, 0x54, 0x32, 0xe4, 0x62, 0x0d, 0xcf,
 	0x2f, 0x4a, 0x29, 0x16, 0x12, 0xe1, 0x62, 0x4d, 0xce, 0x2f, 0xcd, 0x2b, 0x91, 0x60, 0x54, 0x60,
 	0xd4, 0x60, 0x0d, 0x82, 0x70, 0x84, 0x84, 0xb8, 0x58, 0xca, 0xf3, 0x8b, 0x52, 0x24, 0x98, 0x14,
-	0x98, 0x35, 0x38, 0x83, 0xc0, 0x6c, 0x23, 0x23, 0x2e, 0xee, 0xe0, 0x92, 0xfc, 0xa2, 0xd4, 0x14,
+	0x98, 0x35, 0x38, 0x83, 0xc0, 0x6c, 0xa3, 0x68, 0x2e, 0xee, 0xe0, 0x92, 0xfc, 0xa2, 0xd4, 0x14,
 	0x88, 0x46, 0x65, 0x2e, 0x76, 0xf7, 0xd4, 0x12, 0x10, 0x5b, 0x88, 0x4b, 0x0f, 0x64, 0x3a, 0x58,
-	0x58, 0x0a, 0x89, 0xad, 0xc4, 0x90, 0xc4, 0x06, 0xb6, 0xd2, 0x18, 0x10, 0x00, 0x00, 0xff, 0xff,
-	0x6c, 0x45, 0x0b, 0x4d, 0x7f, 0x00, 0x00, 0x00,
+	0x58, 0x0a, 0x89, 0xad, 0xc4, 0x20, 0xa4, 0xce, 0xc5, 0x1d, 0x5a, 0x90, 0x92, 0x58, 0x92, 0x0a,
+	0xd1, 0x83, 0x53, 0x61, 0x12, 0x1b, 0xd8, 0x6d, 0xc6, 0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0x45,
+	0xf2, 0xd7, 0x76, 0xa8, 0x00, 0x00, 0x00,
 }
