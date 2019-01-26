@@ -39,6 +39,7 @@ func (a *RESTApp) initialiseRoutes() {
 	a.Router.HandleFunc("/search/{word:[a-zA-Z]+}", a.getWord).Methods("GET")
 	a.Router.HandleFunc("/words", a.updateWords).Methods("POST")
 	a.Router.HandleFunc("/words", a.updateWords).Methods("PUT")
+	a.Router.HandleFunc("/words/top5", a.topFive).Methods("GET")
 }
 
 // Send a JSON response
@@ -86,4 +87,15 @@ func (a *RESTApp) updateWords(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Error updating words %s", err)
 	}
+}
+
+func (a *RESTApp) topFive(w http.ResponseWriter, r *http.Request) {
+	c := api.NewStoredWordsClient(a.GRPC)
+
+	response, err := c.TopFive(context.Background(), &api.Empty{})
+	if err != nil {
+		// TODO: We don't want the user to see this error message!
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+	}
+	respondWithJSON(w, http.StatusOK, &response)
 }

@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"sort"
 	"strings"
 )
 
@@ -57,4 +58,28 @@ func (s *Server) UpdateWords(ctx context.Context, in *Words) (*Words, error) {
 		}
 	}
 	return in, nil
+}
+
+// TopFive -
+func (s *Server) TopFive(ctx context.Context, e *Empty) (*WordSlice, error) {
+	var ss []*Words
+
+	for k, v := range s.WordList {
+		ss = append(ss, &Words{v, []string{k}})
+	}
+	// Sort the slice by count, highest to lowest
+	sort.Slice(ss, func(i, j int) bool {
+		return ss[i].Count > ss[j].Count
+	})
+	var ws WordSlice
+	if len(ss) != 0 {
+		// Grab the first 5 from the sorted slice
+		max := 5
+		if len(ss) < max {
+			max = len(ss) - 1
+		}
+		ws.Slice = ss[:max]
+	}
+	return &ws, nil
+
 }

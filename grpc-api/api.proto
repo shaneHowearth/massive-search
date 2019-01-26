@@ -6,7 +6,14 @@ message Words {
 	repeated string word = 2;
 }
 
+message WordSlice{
+	repeated Words slice = 1;
+}
+
+message Empty {}
+
 service StoredWords {
 	rpc GetWord(Words) returns (Words) {}
 	rpc UpdateWords(Words) returns (Words) {}
+	rpc TopFive(Empty) returns (WordSlice) {}
 }
