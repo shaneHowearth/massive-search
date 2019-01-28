@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  restapi:
+    build:
+      context: ./
+      dockerfile: ./REST/Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - front-tier
+      - back-tier
+
+  grpcservice:
+    build:
+      context: ./
+      dockerfile: ./grpc-server/Dockerfile
+    networks:
+      - back-tier
+
+networks:
+  front-tier:
+  back-tier:
